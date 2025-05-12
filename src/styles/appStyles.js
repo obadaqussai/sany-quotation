@@ -141,14 +141,17 @@ export const inputFieldStyle = {
     gridTemplateColumns: "1fr",
     gap: "20px",
     "@media (min-width: 768px)": {
-      gridTemplateColumns: "1fr 1fr"
-    }
+      gridTemplateColumns: "1fr 1fr", // Two columns for larger screens
+    },
   };
   
   export const formColumn = {
     display: "flex",
     flexDirection: "column",
-    gap: "20px"
+    gap: "20px",
+    "@media (max-width: 768px)": {
+      flexDirection: "column", // Stack items on smaller screens
+    },
   };
   
   export const actionButtons = {

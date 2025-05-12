@@ -35,7 +35,7 @@ const QuotationPDF = ({ customer, items, quoteNumber, today, salesman }) => {
   return (
     <Document>
       <PdfErrorBoundary>
-        <CoverPage quoteNumber={quoteNumber} today={today} />
+        <CoverPage quoteNumber={quoteNumber} today={today} customer={customer} />
         <MainQuotationPage 
           customer={customer}
           items={items}
@@ -45,10 +45,7 @@ const QuotationPDF = ({ customer, items, quoteNumber, today, salesman }) => {
           validityDate={validityDate}
         />
         {items.map((item, index) => (
-          <ProductCatalogPage 
-            key={`catalog-${index}`} 
-            product={item.product} 
-          />
+          <ProductCatalogPage key={`catalog-${index}`} product={item.product} />
         ))}
       </PdfErrorBoundary>
     </Document>

@@ -23,6 +23,7 @@ const QuotationApp = () => {
   const [nextQuoteNumber, setNextQuoteNumber] = useLocalStorage('last_quote_number', 1);
   const [currentQuoteNumber, setCurrentQuoteNumber] = useState('');
   const [isReadyForDownload, setIsReadyForDownload] = useState(false);
+  const [quotationType, setQuotationType] = useState('cash'); // Default to cash sale
 
   const today = new Date().toLocaleDateString();
 
@@ -60,19 +61,39 @@ const QuotationApp = () => {
     }, 0);
   };
 
+  const calculateInstallments = (total, priceAdjustment, downPaymentPercentage, interestRate, years) => {
+    const downPayment = total * (downPaymentPercentage / 100);
+    const loanAmount = total - downPayment + priceAdjustment;
+    const monthlyInterestRate = interestRate / 100 / 12;
+    const numberOfPayments = years * 12;
+    const monthlyPayment = loanAmount * monthlyInterestRate / (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments));
+    return { downPayment, monthlyPayment, numberOfPayments };
+  };
+
   const generateNewQuotation = () => {
     const quoteNumber = nextQuoteNumber.toString().padStart(4, '0');
-    const newQuote = {
+    let quotationDetails = {
       id: Date.now(),
       quoteNumber,
       date: today,
       customer: { ...customer },
       items: [...items],
       salesman: { ...salesman },
-      total: calculateTotal()
+      total: calculateTotal(),
     };
 
-    setQuotations([...quotations, newQuote]);
+    if (quotationType === 'installment') {
+      const installmentDetails = calculateInstallments(
+        calculateTotal(),
+        0, // Price adjustment
+        25, // Down payment percentage
+        6,  // Interest rate
+        1.5 // Years
+      );
+      quotationDetails = { ...quotationDetails, installmentDetails };
+    }
+
+    setQuotations([...quotations, quotationDetails]);
     setNextQuoteNumber(nextQuoteNumber + 1);
     return quoteNumber;
   };
@@ -134,6 +155,15 @@ const QuotationApp = () => {
         </div>
 
         <div className="form-column">
+          <label htmlFor="quotationType">Quotation Type:</label>
+          <select
+            id="quotationType"
+            value={quotationType}
+            onChange={(e) => setQuotationType(e.target.value)}
+          >
+            <option value="cash">Cash Sale</option>
+            <option value="installment">Installment Sale</option>
+          </select>
           <ProductList 
             items={items} 
             onAdd={handleAddItem} 
